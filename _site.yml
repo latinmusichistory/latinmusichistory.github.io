@@ -1,0 +1,4 @@
+name: "Michael R"
+output_dir: "."
+output:
+  html_document: main.html
