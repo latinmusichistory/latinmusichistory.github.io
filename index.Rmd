@@ -79,3 +79,12 @@ m %>% addPolygons(fillColor = ~pal(indigenous),
  addLegend(pal = colorBin("YlOrRd", domain = south$indigenous, bins = bins, reverse = TRUE), values = ~indigenous, opacity = 0.7, title = "Percentage Indigenous<br>Musical Influence",
     position = "bottomright",  labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
 ```
+```{r results="asis"}
+cat("
+<style>
+.leaflet-container {
+    background: #FFF;
+}
+</style>
+")
+```

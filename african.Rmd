@@ -79,3 +79,12 @@ m %>% addPolygons(fillColor = ~pal(africa),
  addLegend(pal = colorBin("YlOrRd", domain = south$africa, bins = bins, reverse = TRUE), values = ~africa, opacity = 0.7, title = "Percentage African<br>Musical Influence",
     position = "bottomright",  labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
 ```
+```{r results="asis"}
+cat("
+<style>
+.leaflet-container {
+    background: #FFF;
+}
+</style>
+")
+```
