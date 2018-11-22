@@ -1,7 +1,6 @@
 ---
-title: "index"
-author: "Michael R."
-date: "11/21/2018"
+title: "African Musical Influence in Latin America"
+date: "By Michael R, 11/21/2018"
 output: html_document
 ---
 
@@ -10,18 +9,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-#Indigenous
+#African
 library(leaflet)
 options(digits=9)
 south <- geojsonio::geojson_read("map-6.geojson", what = "sp", stringsAsFactors = FALSE)
 var <- south$indigenous
-var2 <- "Indigenous"
+var2 <- "African"
 
-south$indigenous <- as.integer(south$indigenous)
+south$africa <- as.integer(south$africa)
 #print(south$africa)
 #geojsonio::geojson_write(south, file = "map-7.geojson")
-bins <- c(1, 2, 3, 5, 8, 10, 12, 100)
-pal <- colorBin("YlOrRd", domain = south$indigenous, bins = bins)
+bins <- c(1, 10, 15, 20, 25, 30, 100)
+pal <- colorBin("YlOrRd", domain = south$africa, bins = bins)
 
 m <- leaflet(south, width="100%", height = "600", options = leafletOptions(minZoom = 2, maxZoom = 5)) %>%
   setView(-65, -20, 3) %>%
@@ -37,7 +36,7 @@ m <- leaflet(south, width="100%", height = "600", options = leafletOptions(minZo
 
 labels <- sprintf(
   "<strong>%s</strong><br/>%g&#37; %s musical influence",
-  south$name, (south$indigenous), var2
+  south$name, (south$africa), var2
 )
 counting <- 0
 for (i in labels)
@@ -57,7 +56,7 @@ labels2 <- sprintf(
   south$name, south$name
 ) %>% lapply(htmltools::HTML)
 #print(labels2)
-m %>% addPolygons(fillColor = ~pal(indigenous),
+m %>% addPolygons(fillColor = ~pal(africa),
   weight = 2,
   opacity = 1,
   options = pathOptions(interactive = TRUE),
@@ -77,6 +76,6 @@ m %>% addPolygons(fillColor = ~pal(indigenous),
     style = list("font-weight" = "normal", padding = "3px 8px"),
     textsize = "15px",
     direction = "auto"))%>%
- addLegend(pal = colorBin("YlOrRd", domain = south$indigenous, bins = bins, reverse = TRUE), values = ~indigenous, opacity = 0.7, title = "Percentage Indigenous<br>Musical Influence",
+ addLegend(pal = colorBin("YlOrRd", domain = south$africa, bins = bins, reverse = TRUE), values = ~africa, opacity = 0.7, title = "Percentage African<br>Musical Influence",
     position = "bottomright",  labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
 ```

@@ -1,7 +1,6 @@
 ---
-title: "index"
-author: "Michael R."
-date: "11/21/2018"
+title: "Indigenous Musical Influence in Latin America"
+date: "By Michael R, 11/21/2018"
 output: html_document
 ---
 
