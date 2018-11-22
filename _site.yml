@@ -1,4 +1,10 @@
 name: "Michael R"
-output_dir: "."
-output:
-  html_document: main.html
+navbar:
+  title: "Latin Music Heat Maps"
+  left:
+    - text: "Indigenous"
+      href: indigenous.html
+    - text: "African"
+      href: african.html
+    - text: "European"
+      href: european.html
