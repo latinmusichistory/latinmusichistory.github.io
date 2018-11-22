@@ -1,0 +1,82 @@
+---
+title: "index"
+author: "Michael R."
+date: "11/21/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#Indigenous
+library(leaflet)
+options(digits=9)
+south <- geojsonio::geojson_read("map-6.geojson", what = "sp", stringsAsFactors = FALSE)
+var <- south$indigenous
+var2 <- "Indigenous"
+
+south$indigenous <- as.integer(south$indigenous)
+#print(south$africa)
+#geojsonio::geojson_write(south, file = "map-7.geojson")
+bins <- c(1, 2, 3, 5, 8, 10, 12, 100)
+pal <- colorBin("YlOrRd", domain = south$indigenous, bins = bins)
+
+m <- leaflet(south, width="100%", height = "600", options = leafletOptions(minZoom = 2, maxZoom = 5)) %>%
+  setView(-65, -20, 3) %>%
+  
+  setMaxBounds( lng1 = -150
+                , lat1 = -65
+                , lng2 = 20
+                , lat2 = 50 )%>%
+  ##addTiles()
+  addProviderTiles("MapBox", options = providerTileOptions(
+    id = "mapbox.light",
+    accessToken = Sys.getenv('pk.eyJ1IjoibWljaGFlbDEyMzY3MSIsImEiOiJjam56MjBlZXAwNDQyM2ttenVybW44cWFiIn0.l4JYw43bI6Ss1NJlJ-8Kdw')))
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>%g&#37; %s musical influence",
+  south$name, (south$indigenous), var2
+)
+counting <- 0
+for (i in labels)
+{
+  counting <- counting + 1
+  if(length(i <- grep(">0&#37;", i))){
+    #print (labels[counting])
+    labels[counting] <- gsub("(<br/>).*", "\\1", labels[counting])
+    #print (labels[counting])
+    labels[counting] <- paste(labels[counting], "No data available.", sep = "")
+    #print (labels[counting])
+  }
+}
+labels <- labels %>% lapply(htmltools::HTML)
+labels2 <- sprintf(
+  "<strong>%s</strong><br/><a href='https://open.spotify.com/search/results/%s'>Click here for musical examples.<a/>",
+  south$name, south$name
+) %>% lapply(htmltools::HTML)
+#print(labels2)
+m %>% addPolygons(fillColor = ~pal(indigenous),
+  weight = 2,
+  opacity = 1,
+  options = pathOptions(interactive = TRUE),
+  color = "white",
+  dashArray = "3",
+  fillOpacity = 0.7,
+  highlight = highlightOptions(
+    weight = 5,
+    color = "#666",
+    dashArray = "",
+    fillOpacity = 0.7,
+    bringToFront = TRUE),
+  popup = labels2,
+  popupOptions = popupOptions(closeOnClick = TRUE),
+  label = labels,
+  labelOptions = labelOptions(
+    style = list("font-weight" = "normal", padding = "3px 8px"),
+    textsize = "15px",
+    direction = "auto"))%>%
+ addLegend(pal = colorBin("YlOrRd", domain = south$indigenous, bins = bins, reverse = TRUE), values = ~indigenous, opacity = 0.7, title = "Percentage Indigenous<br>Musical Influence",
+    position = "bottomright",  labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
+```
