@@ -3,7 +3,7 @@ navbar:
   title: "Latin Music Heat Maps"
   left:
     - text: "Indigenous"
-      href: indigenous.html
+      href: index.html
     - text: "African"
       href: african.html
     - text: "European"
