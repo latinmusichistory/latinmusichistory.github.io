@@ -1,6 +1,6 @@
 ---
 title: "African Musical Influence in Latin America"
-date: "By Michael R, 11/21/2018"
+date: "by Michael R, 11/21/2018"
 output: html_document
 ---
 

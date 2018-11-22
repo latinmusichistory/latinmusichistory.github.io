@@ -8,3 +8,5 @@ navbar:
       href: african.html
     - text: "European"
       href: european.html
+    - text: "About"
+      href: about.html
