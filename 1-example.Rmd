@@ -1,0 +1,250 @@
+```{r}
+library(leaflet)
+library(spotifyr)
+library(Rspotify)
+
+Sys.setenv(SPOTIFY_CLIENT_ID = '3a512dc974f94331a0396842e183f057')
+Sys.setenv(SPOTIFY_CLIENT_SECRET = '8fa5f888ea22498fb0b779a3adad52b2')
+csv_online_location <- "https://raw.githubusercontent.com/ultinen/randomThings/master/la_data_1_week/"
+all_countries <- c("ar","bo","br","cl","co","cr","do","ec","gt","hn","mx","pa","pe","py","sv","uy")
+
+european_genres <- c("latin", "spanish", "edm", "electro", "sertanej", "bachata")
+african_genres <- c("rap", "hip hop", "r&b", "soul", "afro", "jazz", "blues", "reggae", "bachata", "bossa nova" )
+indigenous_genres <- c("cumbia", "bachata", "merengue", "rumba", "salsa", "forro", "champeta") 
+
+access_token <- get_spotify_access_token()
+r_token <- spotifyOAuth("Latin America Heat Map", client_id = "3a512dc974f94331a0396842e183f057", client_secret = "8fa5f888ea22498fb0b779a3adad52b2")
+south <- geojsonio::geojson_read("map.geojson", what = "sp")
+print(south)
+only_letters <- function(stringy){
+  stringy <- iconv(stringy, to='ASCII//TRANSLIT')
+  stringy <- gsub("[^[:alnum:]]", " ", stringy)
+  return(stringy)
+}
+get_uri_from_url <- function(url) {
+  uri <- gsub("https://open.spotify.com/track/", "", url)
+  return (uri)
+}
+get_country_csv <- function(code) {
+  c_data <- read.csv(url(paste(csv_online_location,code,".csv",sep="")))
+  return (c_data)
+}
+get_country_sound_info <- function(csv) {
+  len <- nrow(csv)
+  artist_info <- character(len)      
+  for(i in 1:len){
+  #(mx_fix)   if(i != 1717){
+  ifelse(nrow(searchArtist(only_letters(csv$Artist[i]), token = r_token))>=1,       
+    artist_info[i] <- searchArtist(only_letters(csv$Artist[i]), token = r_token)$genres[1],
+    artist_info[i] <- "")
+    Sys.sleep(0.15)
+    print(i)
+#    }
+  }
+  return(artist_info)
+}
+get_country_genres <- function(letters) {
+  c_csv <- get_country_csv(letters)
+  genres <- get_country_sound_info(c_csv)
+  return (genres)
+}
+get_country_genre_csv <- function(code){
+  c_data <- read.csv(url(paste(csv_online_location,code,"_g.csv",sep="")))
+  return (c_data)
+}
+get_country_genre_count <- function(code){
+  inform <- get_country_genre_csv(code)
+  stringed <- paste0( inform$genres, collapse=",")
+  counter <- count.fields(textConnection(stringed), sep = ",")
+  return(counter)
+}
+get_country_genre_frequencies <- function(code){
+  inform <- get_country_genre_csv(code)
+  stringed <- paste0( inform$genres, collapse=",")
+  stringed <- strsplit(stringed, ',')
+  stringed <- as.data.frame(stringed)
+  colnames(stringed) <- c("differentGenres")
+  stringed <- count(stringed, vars = c("differentGenres"))
+  stringed <- stringed[order(stringed$freq, decreasing=TRUE), ]
+  rownames(stringed) <- 1:nrow(stringed)
+  return(stringed)
+}
+get_country_genre_frequency_csv <- function(code){
+  c_data <- read.csv(url(paste(csv_online_location,"freq/",code,"_gfreq.csv",sep="")))
+  return (c_data)
+}
+get_tempo_loudness_and_danceability_from_country <- function(code){
+  csv <- get_country_csv(code)
+  len <- nrow(csv)
+  tempo <- 0
+  loudness <- 0
+  danceability <- 0
+  for(i in 1:len){
+  # if((i != 1717) && (code != "mx")){
+     track_info <- getFeatures(get_uri_from_url(csv$URL[i]), token = r_token)
+     if("tempo" %in% colnames(track_info))
+     {
+      tempo <- (tempo + track_info$tempo[1])
+      loudness <- (loudness + track_info$loudness[1])
+      danceability <- (danceability + track_info$danceability[1])
+      Sys.sleep(0.15)
+     }
+  print(tempo)
+  #}
+  }
+  tempo <- (tempo/len)
+  loudness <- (loudness/len)
+  danceability <- (danceability/len)
+  print (c(tempo, loudness, danceability))
+  return(c(tempo, loudness, danceability))
+}
+get_percents_from_country <- function(code){
+  freq <- get_country_genre_frequencies(code)
+  print(freq)
+  europe <- unique(grep(paste(european_genres,collapse="|"), freq$differentGenres))
+  africa <- unique(grep(paste(african_genres,collapse="|"), freq$differentGenres))
+  indigenous <- unique(grep(paste(indigenous_genres,collapse="|"), freq$differentGenres))
+  e_counter <- 0
+  for (number in europe){
+    e_counter <- (e_counter + freq[number, "freq"])
+  }
+  e_counter <- (100*(e_counter / get_country_genre_count(code)))
+  a_counter <- 0
+  for (number in africa){
+    a_counter <- (a_counter + freq[number, "freq"])
+  }
+  a_counter <- (100*(a_counter / get_country_genre_count(code)))
+  i_counter <- 0
+  for (number in indigenous){
+    i_counter <- (i_counter + freq[number, "freq"])
+  }
+  i_counter <- (100*(i_counter / get_country_genre_count(code)))
+  return (c(e_counter, a_counter, i_counter))
+}
+
+print(south$tempo)
+print(south$danceability)
+
+print(as.numeric(south$tempo))
+print(as.numeric(south$danceability))
+south$postal <- as.character(south$postal)
+  south$africa <- as.numeric(south$africa)
+  south$europe <- as.numeric(south$europe)
+  south$indigenous <- as.numeric(south$indigenous)
+  south$loudness <- as.numeric(south$loudness)
+  south$tempo <- as.numeric(south$tempo)
+  south$danceability <- as.numeric(south$danceability)
+for (country in all_countries){
+  #genres <- get_country_genres(country)
+  #genres <- as.data.frame(genres)
+  #print(genres)
+  #write.csv(file = paste(country, '_g.csv', sep=''), genres)
+  
+  print(country)
+  #print(c("Eurupean", "African", "Indigenous"))
+  print(c("tempo", "loudness", "danceability"))
+  #freq <- get_country_genre_frequencies(country)
+  #print(freq)
+  #indexes <- unique(grep(paste(european_genres,collapse="|"), freq$differentGenres))
+  #print(indexes)
+  #counter <- 0
+  #for (number in indexes){
+  #  counter <- (counter + freq[number, "freq"])
+  #  }
+  #print (counter)
+  #print(get_country_genre_count(country))
+  #print (counter / get_country_genre_count(country))
+  
+  track_based_info <- get_tempo_loudness_and_danceability_from_country(country)
+  country_spot <- grep(country, south$postal)
+  south[country_spot[1], "tempo"] <- (track_based_info[1])
+  south[country_spot[1], "loudness"] <- (track_based_info[2])
+  south[country_spot[1], "danceability"] <- (track_based_info[3])
+  
+    #### these are for influence percentages
+  #percents <- get_percents_from_country(country)
+  
+  #country_spot <- grep(country, south$postal)
+  #south[country_spot[1], "europe"] <- (percents[1]+1)
+  #south[country_spot[1], "africa"] <- (percents[2]+1)
+  #south[country_spot[1], "indigenous"] <- (percents[3]+1)
+
+}
+#spots <- grep(0, south$africa)
+#for (i in spots)
+#
+#  south[i, "europe"] <- 0.1
+# south[i, "africa"] <- 0.1
+# south[i, "indigenous"] <- 0.1
+#}
+  
+south$postal <- as.factor(south$postal)
+  south$africa <- as.factor(south$africa)
+  south$europe <- as.factor(south$europe)
+  south$indigenous <- as.factor(south$indigenous)
+  south$tempo <- as.factor(south$tempo)
+  south$loudness <- as.factor(south$loudness)
+  south$danceability <- as.factor(south$danceability)
+  geojsonio::geojson_write(south, file = "map-6.geojson")
+
+#print (artist_info)
+#print(get_country_genres('ec'))
+
+#Sys.setenv(SPOTIFY_CLIENT_ID = '3a512dc974f94331a0396842e183f057')
+#Sys.setenv(SPOTIFY_CLIENT_SECRET = '8fa5f888ea22498fb0b779a3adad52b2')
+#as.data.frame(t(get_uri_from_url("https://open.spotify.com/track/2jt2WxXMCD4zjACthkJQVE")))
+#test <- t(get_uri_from_url('https://open.spotify.com/track/2jt2WxXMCD4zjACthkJQVE'))
+#test <- as.data.frame(test)
+#names(test)[1] <- "track_uri"
+#print(get_track_audio_features(test))
+
+#print(searchArtist("eminem", token = r_token))
+
+#artists <- get_artists('eminem')
+#infor <- get_artist_audio_features('eminem')
+#albums <- get_albums(artists$artist_uri[1])
+#tracks <- get_album_tracks(albums)
+#print(tracks)
+#thing <- get_track_audio_features(tracks)
+#print(thing)
+#print(infor)
+
+#eg: https://open.spotify.com/track/2jt2WxXMCD4zjACthkJQVE
+
+#south <- geojsonio::geojson_read(paste(csv_online_location,"map.geojson",sep=""), what = "sp")
+
+m <- leaflet(south) %>%
+  setView(-96, 37.8, 4) %>%
+  ##addTiles()
+  addProviderTiles("MapBox", options = providerTileOptions(
+    id = "mapbox.light",
+    accessToken = Sys.getenv('pk.eyJ1IjoibWljaGFlbDEyMzY3MSIsImEiOiJjam56MjBlZXAwNDQyM2ttenVybW44cWFiIn0.l4JYw43bI6Ss1NJlJ-8Kdw')))
+
+labels <- sprintf(
+  "<strong>%s</strong>",
+  south$name
+) %>% lapply(htmltools::HTML)
+
+m %>% addPolygons(fillColor = "green",
+  weight = 2,
+  opacity = 1,
+  color = "white",
+  dashArray = "3",
+  fillOpacity = 0.7,
+  highlight = highlightOptions(
+    weight = 5,
+    color = "#666",
+    dashArray = "",
+    fillOpacity = 0.7,
+    bringToFront = TRUE),
+  label = labels,
+  labelOptions = labelOptions(
+    style = list("font-weight" = "normal", padding = "3px 8px"),
+    textsize = "15px",
+    direction = "auto"))
+#browseURL("https://www.google.com", browser = getOption("browser"),
+#          encodeIfNeeded = FALSE)
+#on(click)
+#    browseURL("https://www.google.com", browser = getOption("browser"),
+#          encodeIfNeeded = FALSE)
+```
