@@ -1,8 +1,17 @@
-# Website : [https://ultinen.github.io/](https://ultinen.github.io/)
+# Website : [https://latinmusichistory.github.io/index.html](https://latinmusichistory.github.io/index.html)
 # About
 
 by Michael R, 11/21/2018
 
-This is a class project for Fordham University’s “MUSC 1100 R04”, or “Intro to Latin Music History”. Data was gathered with spotify’s API and put through numerous R scripts based on associated artists and terms found from tracks in spotify’s regional top 200 over the course of a week, which equates to around 30,000 different songs.
+This project was made in a few days put together using only "Rstudio".
+To make something similair, get familiar with the "R" language then use the following files with Rstudio:
+
+"1-example.rmd" : used to get data from spotify datasets. Redirects to another repository of mine for the actual data. Some editing is needed to make it gather more than a week of data. The file is rather messy, so take you're time to understand what different parts of it do. The numbers made by it are then put back into the "map.geojson" it refers to, which is a map of latin america. Data is split up by country like that.
+
+"map.geojson" : the map used to display things. You can edit the file directly, but it's preferably edited through the .rmd files.
+
+"index.rmd", "tempo.rmd", "loudness.rmd", etc. : These are the R files that make the html files used on people's browsers. In other words, displaying the data is done through these. Edit them then press "knit" at the top of Rstudio to make updated html files / pages.
+
+"(underscore)site.yml" : This makes all the html pages redirect to one another through the menu. Note the formatting. Edit this when removing / adding pages.
 
 Questions can be directed to mriadzaky@fordham.edu.
