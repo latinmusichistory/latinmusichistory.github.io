@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #Indigenous
 library(leaflet)
 options(digits=9)
-south <- geojsonio::geojson_read("map-6.geojson", what = "sp", stringsAsFactors = FALSE)
+south <- geojsonio::geojson_read("map.geojson", what = "sp", stringsAsFactors = FALSE)
 var <- south$indigenous
 var2 <- "Indigenous"
 

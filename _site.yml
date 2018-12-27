@@ -8,5 +8,11 @@ navbar:
       href: african.html
     - text: "European"
       href: european.html
+    - text: "Loudness"
+      href: loudness.html
+    - text: "Tempo"
+      href: tempo.html
+    - text: "Danceability"
+      href: danceability.html
     - text: "About"
       href: about.html

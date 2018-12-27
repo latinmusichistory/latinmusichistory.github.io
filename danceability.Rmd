@@ -1,6 +1,6 @@
 ---
-title: "African Musical Influence in Latin America"
-date: "by Michael R, 11/21/2018"
+title: "Average Danceability of Music in Latin America"
+date: "by Michael R, 12/26/2018"
 output: html_document
 ---
 
@@ -9,18 +9,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-#African
+#Danceability
 library(leaflet)
 options(digits=9)
 south <- geojsonio::geojson_read("map.geojson", what = "sp", stringsAsFactors = FALSE)
-var <- south$indigenous
-var2 <- "African"
 
-south$africa <- as.integer(south$africa)
+var2 <- "danceable music"
+
+south$danceability <- (as.numeric(south$danceability)*100)
+var <- round(south$danceability, 2)
 #print(south$africa)
 #geojsonio::geojson_write(south, file = "map-7.geojson")
-bins <- c(1, 10, 15, 20, 25, 30, 100)
-pal <- colorBin("YlOrRd", domain = south$africa, bins = bins)
+bins <- c(50, 60, 70, 80, 90, 99)
+pal <- colorBin("YlOrRd", domain = south$danceability, bins = bins)
 
 m <- leaflet(south, width="100%", height = "600", options = leafletOptions(minZoom = 2, maxZoom = 5)) %>%
   setView(-65, -20, 3) %>%
@@ -35,15 +36,15 @@ m <- leaflet(south, width="100%", height = "600", options = leafletOptions(minZo
     accessToken = Sys.getenv('pk.eyJ1IjoibWljaGFlbDEyMzY3MSIsImEiOiJjam56MjBlZXAwNDQyM2ttenVybW44cWFiIn0.l4JYw43bI6Ss1NJlJ-8Kdw')))
 
 labels <- sprintf(
-  "<strong>%s</strong><br/>%g&#37; %s musical influence",
-  south$name, (south$africa), var2
+  "<strong>%s</strong><br/>%g&#37; %s",
+  south$name, var, var2
 )
 counting <- 0
-
+naCountries <- c("Falkland Islands", "Nicaragua", "Venezuela", "Guyana", "Suriname", "French Guiana", "Belize", "Jamaica", "Cuba", "Bahamas", "Haiti", "Puerto Rico")
 for (i in labels)
 {
   counting <- counting + 1
-  if(length(i <- grep(">0&#37;", i))){
+  if(length(i <- grep(paste(naCountries,collapse="|"), i))){
     #print (labels[counting])
     labels[counting] <- gsub("(<br/>).*", "\\1", labels[counting])
     #print (labels[counting])
@@ -103,7 +104,7 @@ for (i in labels2)
 
 labels2 <- labels2 %>% lapply(htmltools::HTML)
 #print(labels2)
-m %>% addPolygons(fillColor = ~pal(africa),
+m %>% addPolygons(fillColor = ~pal(danceability),
   weight = 2,
   opacity = 1,
   options = pathOptions(interactive = TRUE),
@@ -123,7 +124,7 @@ m %>% addPolygons(fillColor = ~pal(africa),
     style = list("font-weight" = "normal", padding = "3px 8px"),
     textsize = "15px",
     direction = "auto"))%>%
- addLegend(pal = colorBin("YlOrRd", domain = south$africa, bins = bins, reverse = TRUE), values = ~africa, opacity = 0.7, title = "Percentage African<br>Musical Influence",
+ addLegend(pal = colorBin("YlOrRd", domain = south$danceability, bins = bins, reverse = TRUE), values = ~danceability, opacity = 0.7, title = "Average Danceability of Music<br>by Percentage",
     position = "bottomright",  labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE)))
 ```
 ```{r results="asis", echo=FALSE, warning=FALSE, message=FALSE}
