@@ -1,7 +1,7 @@
 # Website : [https://latinmusichistory.github.io/index.html](https://latinmusichistory.github.io/index.html)
 # About
 
-by Michael R, 11/21/2018
+by Michael R, 12/26/2018
 
 This project was made in a few days put together using only "Rstudio". You'll want to download that from [here](https://www.rstudio.com/products/rstudio/#Desktop).
 To make a similair project / edit this one, first, use "[Github for Desktop](https://desktop.github.com/)" to download all the files to your computer. 
