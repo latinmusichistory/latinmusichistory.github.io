@@ -13,8 +13,10 @@ For an idea of what data you can use, refer to [this](https://developer.spotify.
 
 "map.geojson" : The map file used to display things and store some data by region. You can edit the file directly, but it's preferably edited through the .rmd files. To view it on its own you can use [this](http://geojson.io/) site.
 
-"index.rmd", "tempo.rmd", "loudness.rmd", etc. : These are the R files that make the html files used on people's browsers. In other words, displaying the data is done through these. Edit them then press "knit" at the top of Rstudio to make updated html files / pages.
+"index.rmd", "tempo.rmd", "loudness.rmd", etc. : These are the R files that make the html files used on people's browsers. In other words, displaying the data is done through these. Edit them then press "knit" at the top of Rstudio to make the updated html files / pages. Also note, these files keep the uri's of spotify playlists that pop up when you click each country. They are located in the switch statement and can be changed very easily.
 
 "(underscore)site.yml" : This makes all the html pages redirect to one another through the menu. Note the formatting. Edit this when removing / adding pages.
+
+After making edits to the files and making updated html pages, copy the contents of the "(underscore)site" folder to the parent folder. Then go to github desktop, put something in the "subject" line and hit "Commit to master". Then, hit the button at the top with the reload symbol. The files / webpage should be updated within a minute or two with the changes you saw in the preview window of Rstudio.
 
 Questions can be directed to mriadzaky@fordham.edu.
